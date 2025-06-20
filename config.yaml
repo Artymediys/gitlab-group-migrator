@@ -1,0 +1,19 @@
+# URL исходного GitLab (откуда переносим)
+source_gitlab_url: "https://source.gitlab.example.com"
+
+# URL целевого GitLab (куда переносим).
+# Если пусто — будет использован source_gitlab_url
+target_gitlab_url: "https://target.gitlab.example.com"
+
+# API-токен для исходного GitLab
+source_token: "YOUR_SOURCE_PRIVATE_TOKEN"
+
+# API-токен для целевого GitLab.
+# Если пусто — будет использован source_token
+target_token: "YOUR_TARGET_PRIVATE_TOKEN"
+
+# Полный путь исходной группы (source namespace)
+source_group: "INSTANCE/DR"
+
+# Полный путь целевой группы (target namespace)
+target_group: "INSTANCE/DR"

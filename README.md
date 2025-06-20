@@ -1,2 +1,2 @@
-# gitlab-group-migrator
-GGM – GitLab Group Migrator
+# GGM – GitLab Group Migrator
+Программа для переноса группы из одного GitLab в другой (или же в рамках одного инстанса)
