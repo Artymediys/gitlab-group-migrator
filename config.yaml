@@ -6,11 +6,11 @@ source_gitlab_url: "https://source.gitlab.example.com"
 target_gitlab_url: "https://target.gitlab.example.com"
 
 # API-токен для исходного GitLab
-source_token: "YOUR_SOURCE_PRIVATE_TOKEN"
+source_access_token: "YOUR_SOURCE_PRIVATE_TOKEN"
 
 # API-токен для целевого GitLab.
 # Если пусто — будет использован source_token
-target_token: "YOUR_TARGET_PRIVATE_TOKEN"
+target_access_token: "YOUR_TARGET_PRIVATE_TOKEN"
 
 # Полный путь исходной группы (source namespace)
 source_group: "INSTANCE/DR"
