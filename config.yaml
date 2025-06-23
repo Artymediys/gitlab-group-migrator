@@ -1,19 +1,21 @@
-# URL исходного GitLab (откуда переносим)
+# URL of the source GitLab (from which to migrate)
 source_gitlab_url: "https://source.gitlab.example.com"
 
-# URL целевого GitLab (куда переносим).
-# Если пусто — будет использован source_gitlab_url
+# URL of the target GitLab (to which to migrate).
+# If empty — source_gitlab_url will be used
 target_gitlab_url: "https://target.gitlab.example.com"
 
-# API-токен для исходного GitLab
+# API token for the source GitLab
 source_access_token: "YOUR_SOURCE_PRIVATE_TOKEN"
 
-# API-токен для целевого GitLab.
-# Если пусто — будет использован source_token
+# API token for the target GitLab.
+# If empty — source_access_token will be used
 target_access_token: "YOUR_TARGET_PRIVATE_TOKEN"
 
-# Полный путь исходной группы (source namespace)
-source_group: "INSTANCE/DR"
+# Full path of the source group (source namespace)
+# Specified in the group's URL-path format
+source_group: "main-group-name/subgroup-name"
 
-# Полный путь целевой группы (target namespace)
-target_group: "INSTANCE/DR"
+# Full path of the target group (target namespace)
+# Specified in the group's URL-path format
+target_group: "main-group-name/subgroup-name"
