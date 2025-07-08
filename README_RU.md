@@ -2,7 +2,7 @@
 Приложение для переноса группы между GitLab-инстансами.  
 Также поддерживается перенос в рамках одного инстанса.
 
-# Пререквизиты
+## Пререквизиты
 -  В `admin area` открыть сетевой доступ к **source-gitlab**
    - В `settings` => `network` => `outbound requests` поставить галочку на `Allow requests to the local network from webhooks and integrations` и вписать адрес **source-gitlab**
 

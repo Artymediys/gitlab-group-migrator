@@ -2,7 +2,7 @@
 An application for migrating groups between GitLab instances.  
 Migration within a single instance is also supported.
 
-# Prerequisites
+## Prerequisites
 - In the `Admin Area`, enable network access to **source-gitlab**
    - Go to `Settings` → `Network` → `Outbound requests`, check `Allow requests to the local network from webhooks and integrations`, and enter the address **source-gitlab**
 
