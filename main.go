@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"gitlab-group-migrator/internal/config"
@@ -12,7 +13,8 @@ import (
 // main is the entry point of the application.
 // It executes the run function and handles error reporting.
 func main() {
-	if err := run(); err != nil {
+	logger := log.New(os.Stdout, "", log.LstdFlags)
+	if err := run(logger); err != nil {
 		fmt.Fprintf(os.Stderr, "Migration failed: %v\n", err)
 		os.Exit(1)
 	}
@@ -22,7 +24,7 @@ func main() {
 
 // run performs the primary workflow: parsing flags, loading configuration,
 // fetching source and target groups, and initiating the namespace migration.
-func run() error {
+func run(logger *log.Logger) error {
 	cfgPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
 
@@ -36,14 +38,16 @@ func run() error {
 		return fmt.Errorf("fetching source group %s: %w", cfg.SourceGroup, err)
 	}
 
+	logger.Printf("Fetched source group %s (ID %d)", sourceGroup.FullPath, sourceGroup.ID)
+
 	targetGroup, err := gitlab.FetchGroup(cfg.TargetGitlabURL, cfg.TargetAccessToken, cfg.TargetGroup)
 	if err != nil {
 		return fmt.Errorf("fetching target group %s: %w", cfg.TargetGroup, err)
 	}
 
-	if err = gitlab.MigrateNamespace(cfg, sourceGroup.ID, targetGroup.ID); err != nil {
-		return fmt.Errorf("migrating namespace %s -> %s: %w", cfg.SourceGroup, cfg.TargetGroup, err)
-	}
+	logger.Printf("Fetched target group %s (ID %d)", targetGroup.FullPath, targetGroup.ID)
+
+	gitlab.MigrateNamespace(cfg, logger, sourceGroup.ID, targetGroup.ID)
 
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -60,35 +61,54 @@ func FetchGroup(baseURL, token, groupPath string) (*Group, error) {
 
 // MigrateNamespace recursively moves all subgroups and projects from the source group
 // into the target group, preserving hierarchy.
-func MigrateNamespace(cfg *config.Config, sourceGroupID, targetGroupID int) error {
+func MigrateNamespace(cfg *config.Config, logger *log.Logger, sourceGroupID, targetGroupID int) {
 	subgroupList, err := listSubgroups(cfg.SourceGitlabURL, cfg.SourceAccessToken, sourceGroupID)
 	if err != nil {
-		return fmt.Errorf("listing subgroups of %d: %w", sourceGroupID, err)
+		logger.Printf("Error listing subgroups of %d: %v", sourceGroupID, err)
 	}
 
 	for _, subgroup := range subgroupList {
-		newGroup, err := createSubgroup(cfg, subgroup, targetGroupID)
-		if err != nil {
-			return fmt.Errorf("creating subgroup %s under %d: %w", subgroup.FullPath, targetGroupID, err)
+		logger.Printf("  Subgroup: %s (ID %d)", subgroup.FullPath, subgroup.ID)
+
+		var newGroup *Group
+		targetFullPath := fmt.Sprintf("%s/%s", cfg.TargetGroup, subgroup.Path)
+		existingGroup, err := FetchGroup(cfg.TargetGitlabURL, cfg.TargetAccessToken, targetFullPath)
+		if err == nil {
+			newGroup = existingGroup
+			logger.Printf("  Reusing existing subgroup %s (ID %d)", newGroup.FullPath, newGroup.ID)
+		} else {
+			newGroup, err = createSubgroup(cfg, subgroup, targetGroupID)
+			if err != nil {
+				logger.Printf("Skipping subgroup %s: %v", subgroup.FullPath, err)
+				continue
+			}
+			logger.Printf("  Created subgroup %s (ID %d)", newGroup.FullPath, newGroup.ID)
 		}
 
-		if err = MigrateNamespace(cfg, subgroup.ID, newGroup.ID); err != nil {
-			return err
-		}
+		MigrateNamespace(cfg, logger, subgroup.ID, newGroup.ID)
 	}
 
 	projectList, err := listProjects(cfg.SourceGitlabURL, cfg.SourceAccessToken, sourceGroupID)
 	if err != nil {
-		return fmt.Errorf("listing projects of %d: %w", sourceGroupID, err)
+		logger.Printf("Error listing projects of %d: %v", sourceGroupID, err)
 	}
 
 	for _, project := range projectList {
+		logger.Printf("  Project: %s", project.PathWithNamespace)
 		if err = importProject(cfg, project, targetGroupID); err != nil {
-			return fmt.Errorf("importing project %s: %w", project.PathWithNamespace, err)
+			if strings.Contains(err.Error(), "status 409") {
+				logger.Printf("    Already exists, skipping %s", project.PathWithNamespace)
+			} else {
+				logger.Printf("    Skipping project %s: %v", project.PathWithNamespace, err)
+			}
+
+			continue
 		}
+
+		logger.Printf("    Imported %s successfully", project.PathWithNamespace)
 	}
 
-	return nil
+	logger.Printf("Finished namespace %d => %d", sourceGroupID, targetGroupID)
 }
 
 // listSubgroups pages through all subgroups of a given group ID and returns them.
