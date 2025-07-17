@@ -9,12 +9,13 @@ import (
 
 // Config holds the URLs, access tokens, and group paths for source and target GitLab instances
 type Config struct {
-	SourceGitlabURL   string `yaml:"source_gitlab_url"`
-	TargetGitlabURL   string `yaml:"target_gitlab_url"`
-	SourceAccessToken string `yaml:"source_access_token"`
-	TargetAccessToken string `yaml:"target_access_token"`
-	SourceGroup       string `yaml:"source_group"`
-	TargetGroup       string `yaml:"target_group"`
+	SourceGitlabURL   string   `yaml:"source_gitlab_url"`
+	TargetGitlabURL   string   `yaml:"target_gitlab_url"`
+	SourceAccessToken string   `yaml:"source_access_token"`
+	TargetAccessToken string   `yaml:"target_access_token"`
+	SourceGroup       string   `yaml:"source_group"`
+	TargetGroup       string   `yaml:"target_group"`
+	SpecificProjects  []string `yaml:"specific_projects"`
 }
 
 // Load reads the YAML configuration file at the given path and returns a Config.

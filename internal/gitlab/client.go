@@ -12,7 +12,7 @@ import (
 	"gitlab-group-migrator/internal/config"
 )
 
-// Group represents a GitLab group (namespace), including visibility and full path metadata
+// Group represents a GitLab group (namespace), including visibility and full path metadata.
 type Group struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
@@ -21,7 +21,7 @@ type Group struct {
 	Visibility string `json:"visibility"`
 }
 
-// Project represents a GitLab project, including its namespace path and visibility
+// Project represents a GitLab project, including its namespace path and visibility.
 type Project struct {
 	ID                int    `json:"id"`
 	Name              string `json:"name"`
@@ -57,6 +57,34 @@ func FetchGroup(baseURL, token, groupPath string) (*Group, error) {
 	}
 
 	return &groupInfo, nil
+}
+
+// FetchProject retrieves a single project by its full path.
+func FetchProject(baseURL, token, projectPath string) (*Project, error) {
+	endpoint := fmt.Sprintf("%s/api/v4/projects/%s", baseURL, url.PathEscape(projectPath))
+	request, err := http.NewRequest(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating request for project %s: %w", projectPath, err)
+	}
+
+	request.Header.Set("PRIVATE-TOKEN", token)
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("requesting project %s: %w", projectPath, err)
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(response.Body)
+		return nil, fmt.Errorf("API returned status %d fetching project %s: %s", response.StatusCode, projectPath, string(body))
+	}
+
+	var projectInfo Project
+	if err = json.NewDecoder(response.Body).Decode(&projectInfo); err != nil {
+		return nil, fmt.Errorf("decoding project %s response: %w", projectPath, err)
+	}
+
+	return &projectInfo, nil
 }
 
 // MigrateNamespace recursively moves all subgroups and projects from the source group
@@ -109,6 +137,28 @@ func MigrateNamespace(cfg *config.Config, logger *log.Logger, sourceGroupID, tar
 	}
 
 	logger.Printf("Finished namespace %d => %d", sourceGroupID, targetGroupID)
+}
+
+// MigrateSpecificProjects moves a limited list of projects from the source group to the target group
+func MigrateSpecificProjects(cfg *config.Config, logger *log.Logger, targetGroupID int) {
+	for _, projectPath := range cfg.SpecificProjects {
+		fullProjectPath := cfg.SourceGroup + "/" + projectPath
+
+		project, err := FetchProject(cfg.SourceGitlabURL, cfg.SourceAccessToken, fullProjectPath)
+		if err != nil {
+			logger.Printf("Skipping project %s: %v", fullProjectPath, err)
+			continue
+		}
+
+		logger.Printf("Importing selected project %s", project.PathWithNamespace)
+		if err = importProject(cfg, *project, targetGroupID); err != nil {
+			if strings.Contains(err.Error(), "status 409") {
+				logger.Printf("Project %s already exists, skipping", project.PathWithNamespace)
+			} else {
+				logger.Printf("Error importing project %s: %v", project.PathWithNamespace, err)
+			}
+		}
+	}
 }
 
 // listSubgroups pages through all subgroups of a given group ID and returns them.

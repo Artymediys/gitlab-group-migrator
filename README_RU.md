@@ -1,5 +1,5 @@
 # GGM – GitLab Group Migrator
-Приложение для переноса группы между GitLab-инстансами.  
+Приложение для переноса групповых проектов между GitLab-инстансами.  
 Также поддерживается перенос в рамках одного инстанса.
 
 ## Пререквизиты
@@ -15,7 +15,7 @@
 # URL исходного GitLab (откуда переносим)
 source_gitlab_url: "https://source.gitlab.example.com"
 
-# URL целевого GitLab (куда переносим).
+# URL целевого GitLab (куда переносим)
 # Если пусто — будет использован source_gitlab_url
 target_gitlab_url: "https://target.gitlab.example.com"
 
@@ -33,6 +33,13 @@ source_group: "main-group-name/subgroup-name"
 # Полный путь целевой группы (target namespace)
 # Указывается в формате URL-path группы
 target_group: "main-group-name/subgroup-name"
+
+# Список специальных проектов для миграции
+# Проекты указываются в URL-path формате
+# Если задать список, то будут перенесены только эти проекты
+specific_projects:
+   - "subgroup-name/project-a"
+   - "project-b"
 ```
 
 ## Сборка и запуск

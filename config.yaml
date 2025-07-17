@@ -1,7 +1,7 @@
 # URL of the source GitLab (from which to migrate)
 source_gitlab_url: "https://source.gitlab.example.com"
 
-# URL of the target GitLab (to which to migrate).
+# URL of the target GitLab (to which to migrate)
 # If empty — source_gitlab_url will be used
 target_gitlab_url: "https://target.gitlab.example.com"
 
@@ -19,3 +19,10 @@ source_group: "main-group-name/subgroup-name"
 # Full path of the target group (target namespace)
 # Specified in the group's URL-path format
 target_group: "main-group-name/subgroup-name"
+
+
+# List of specific projects to migrate, in URL-path format
+# If this list is non-empty, only these projects will be imported from source_group to target_group
+specific_projects:
+  - "subgroup-name/project-a"
+  - "project-b"

@@ -1,5 +1,5 @@
 # GGM – GitLab Group Migrator
-An application for migrating groups between GitLab instances.  
+An application for migrating group's projects between GitLab instances.  
 Migration within a single instance is also supported.
 
 ## Prerequisites
@@ -15,7 +15,7 @@ To operate correctly, the application requires a YAML configuration file:
 # URL of the source GitLab (from which to migrate)
 source_gitlab_url: "https://source.gitlab.example.com"
 
-# URL of the target GitLab (to which to migrate).
+# URL of the target GitLab (to which to migrate)
 # If empty — source_gitlab_url will be used
 target_gitlab_url: "https://target.gitlab.example.com"
 
@@ -33,6 +33,13 @@ source_group: "main-group-name/subgroup-name"
 # Full path of the target group (target namespace)
 # Specified in the group's URL-path format
 target_group: "main-group-name/subgroup-name"
+
+# List of specific projects to migrate
+# Specified in the project's URL-path format
+# If this list is non-empty, only these projects will be imported
+specific_projects:
+  - "subgroup-name/project-a"
+  - "project-b"
 ```
 
 ## Building and Running

@@ -23,7 +23,7 @@ func main() {
 }
 
 // run performs the primary workflow: parsing flags, loading configuration,
-// fetching source and target groups, and initiating the namespace migration.
+// fetching source and target groups, and initiating migration.
 func run(logger *log.Logger) error {
 	cfgPath := flag.String("config", "config.yaml", "path to config file")
 	flag.Parse()
@@ -47,7 +47,11 @@ func run(logger *log.Logger) error {
 
 	logger.Printf("Fetched target group %s (ID %d)", targetGroup.FullPath, targetGroup.ID)
 
-	gitlab.MigrateNamespace(cfg, logger, sourceGroup.ID, targetGroup.ID)
+	if len(cfg.SpecificProjects) > 0 {
+		gitlab.MigrateSpecificProjects(cfg, logger, targetGroup.ID)
+	} else {
+		gitlab.MigrateNamespace(cfg, logger, sourceGroup.ID, targetGroup.ID)
+	}
 
 	return nil
 }
